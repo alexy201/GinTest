@@ -33,8 +33,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var recipes []Recipe
-
 // swagger:parameters recipes newRecipe
 type Recipe struct {
 	//swagger:ignore
@@ -121,21 +119,16 @@ func NewRecipeHandler(c *gin.Context) {
 func DeleteRecipeHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	index := -1
-	for i := 0; i < len(recipes); i++ {
-		if recipes[i].ID.Hex() == id {
-			index = i
-			break
-		}
-	}
-
-	if index == -1 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Recipe not found"})
+	objectId, _ := primitive.ObjectIDFromHex(id)
+	collection := client.Database("demo").Collection("recipes")
+	_, err = collection.DeleteOne(ctx, bson.M{
+		"_id": objectId,
+	})
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	recipes = append(recipes[:index], recipes[index+1:]...)
-
 	c.JSON(http.StatusOK, gin.H{"message": "Recipe has been deleted"})
 }
 
@@ -157,13 +150,21 @@ func DeleteRecipeHandler(c *gin.Context) {
 //         description: Invalid recipe ID
 func GetRecipeHandler(c *gin.Context) {
 	id := c.Param("id")
-	for i := 0; i < len(recipes); i++ {
-		if recipes[i].ID.Hex() == id {
-			c.JSON(http.StatusOK, recipes[i])
+	collection := client.Database("demo").Collection("recipes")
+	cur, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer cur.Close(ctx)
+	for cur.Next(ctx) {
+		var recipe Recipe
+		cur.Decode(&recipe)
+		if recipe.ID.Hex() == id {
+			c.JSON(http.StatusOK, recipe)
 			return
 		}
 	}
-
 	c.JSON(http.StatusNotFound, gin.H{"error": "Recipe not found"})
 }
 
@@ -271,6 +272,7 @@ func main() {
 	router := gin.Default()
 	router.POST("/recipes", NewRecipeHandler)
 	router.GET("/recipes", ListRecipesHandler)
+	router.GET("/recipes/:id", GetRecipeHandler)
 	router.PUT("/recipes/:id", UpdateRecipeHandler)
 	router.DELETE("/recipes/:id", DeleteRecipeHandler)
 	router.GET("/recipes/search", SearchRecipesHandler)
