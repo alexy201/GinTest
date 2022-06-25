@@ -17,10 +17,11 @@
 package main
 
 import (
-	handlers "Gin/handlers"
 	"context"
 	"log"
 	"os"
+
+	handlers "github.com/alexy201/GinTest/handlers"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"

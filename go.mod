@@ -1,4 +1,4 @@
-module Gin
+module github.com/alexy201/GinTest
 
 go 1.18
 

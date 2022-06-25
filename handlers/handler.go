@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"Gin/models"
+	"github.com/alexy201/GinTest/models"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
