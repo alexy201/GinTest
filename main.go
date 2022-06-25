@@ -50,7 +50,7 @@ func init() {
 		log.Fatal(err)
 	}
 	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
-	recipesHandler = handlers.NewRecipesHandler(ctx, collection)
+	recipesHandler = handlers.NewRecipesHandler(ctx, collection, redisClient)
 	log.Println("Connected to MongoDB")
 }
 
