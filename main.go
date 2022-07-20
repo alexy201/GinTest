@@ -33,9 +33,11 @@ import (
 var recipesHandler *handlers.RecipesHandler
 
 func init() {
+	//openssl rand -base64 12 | docker secret create mongodb_password -
 	//docker service create -d --name mongodb -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongodb_password -p 27017:27017 mongo:latest
 	//MONGO_URI="mongodb://localhost:27017/test?authSource=admin" MONGO_DATABASE=demo go run main.go
 	//docker run -d -v `pwd`/local-redis-stack.conf:/redis-stack.conf --name redis -p 6379:6379 redis:latest
+	//ab -n 2000 -c 100 http://localhost:8080/recipes
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
