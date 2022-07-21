@@ -236,7 +236,7 @@ func (handler *RecipesHandler) DeleteRecipeHandler(c *gin.Context) {
 //         description: Successful operation
 //     '404':
 //         description: Invalid recipe ID
-func (handler *RecipesHandler) GetRecipeHandler(c *gin.Context) {
+func (handler *RecipesHandler) GetOneRecipeHandler(c *gin.Context) {
 	id := c.Param("id")
 	cur, err := handler.collection.Find(handler.ctx, bson.M{})
 	if err != nil {

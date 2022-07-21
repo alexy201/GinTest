@@ -31,11 +31,12 @@ import (
 )
 
 var recipesHandler *handlers.RecipesHandler
+var authHandler *handlers.AuthHandler
 
 func init() {
 	//openssl rand -base64 12 | docker secret create mongodb_password -
 	//docker service create -d --name mongodb -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongodb_password -p 27017:27017 mongo:latest
-	//MONGO_URI="mongodb://localhost:27017/test?authSource=admin" MONGO_DATABASE=demo go run main.go
+	//JWT_SECRET=eUbP9shywUygMx7u MONGO_URI="mongodb://localhost:27017/test?authSource=admin" MONGO_DATABASE=demo go run main.go
 	//docker run -d -v `pwd`/local-redis-stack.conf:/redis-stack.conf --name redis -p 6379:6379 redis:latest
 	//ab -n 2000 -c 100 http://localhost:8080/recipes
 	redisClient := redis.NewClient(&redis.Options{
@@ -53,16 +54,23 @@ func init() {
 	}
 	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
 	recipesHandler = handlers.NewRecipesHandler(ctx, collection, redisClient)
+	authHandler = &handlers.AuthHandler{}
 	log.Println("Connected to MongoDB")
 }
 
 func main() {
 	router := gin.Default()
-	router.POST("/recipes", recipesHandler.NewRecipeHandler)
+	authorized := router.Group("/")
+	authorized.Use(authHandler.AuthMiddleware())
+	{
+		authorized.POST("/recipes", recipesHandler.NewRecipeHandler)
+		authorized.PUT("/recipes/:id", recipesHandler.UpdateRecipeHandler)
+		authorized.DELETE("/recipes/:id", recipesHandler.DeleteRecipeHandler)
+		authorized.GET("/recipes/:id", recipesHandler.GetOneRecipeHandler)
+	}
 	router.GET("/recipes", recipesHandler.ListRecipesHandler)
-	router.GET("/recipes/:id", recipesHandler.GetRecipeHandler)
-	router.PUT("/recipes/:id", recipesHandler.UpdateRecipeHandler)
-	router.DELETE("/recipes/:id", recipesHandler.DeleteRecipeHandler)
 	router.GET("/recipes/search", recipesHandler.SearchRecipesHandler)
+	router.POST("/refresh", authHandler.RefreshHandler)
+	router.POST("/signin", authHandler.SignInHandler)
 	router.Run()
 }
