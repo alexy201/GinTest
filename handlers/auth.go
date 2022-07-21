@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"crypto/sha256"
 	"net/http"
 	"os"
 	"time"
@@ -8,9 +10,14 @@ import (
 	"github.com/alexy201/GinTest/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type AuthHandler struct{}
+type AuthHandler struct {
+	collection *mongo.Collection
+	ctx        context.Context
+}
 
 type Claims struct {
 	Username string `json:"username"`
@@ -22,16 +29,33 @@ type JWTOutput struct {
 	Expires time.Time `json:"expires"`
 }
 
+func NewAuthHandler(ctx context.Context, collection *mongo.Collection) *AuthHandler {
+	return &AuthHandler{
+		collection: collection,
+		ctx:        ctx,
+	}
+}
+
 func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if user.Username != "admin" || user.Password != "password" {
+
+	//Verifying user creds
+	h := sha256.New()
+
+	cur := handler.collection.FindOne(handler.ctx, bson.M{
+		"username": user.Username,
+		"password": string(h.Sum([]byte(user.Password))),
+	})
+	if cur.Err() != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
+
+	//creating token
 	expirationTime := time.Now().Add(10 * time.Minute)
 	claims := &Claims{
 		Username: user.Username,

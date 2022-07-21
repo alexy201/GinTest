@@ -53,6 +53,8 @@ func init() {
 		log.Fatal(err)
 	}
 	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
+	collectionUsers := client.Database(os.Getenv("MONGO_DATABASE")).Collection("users")
+	authHandler = handlers.NewAuthHandler(ctx, collectionUsers)
 	recipesHandler = handlers.NewRecipesHandler(ctx, collection, redisClient)
 	authHandler = &handlers.AuthHandler{}
 	log.Println("Connected to MongoDB")
