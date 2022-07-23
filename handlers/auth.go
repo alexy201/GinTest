@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
 	"os"
 	"time"
@@ -42,19 +43,16 @@ func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	//Verifying user creds
 	h := sha256.New()
-
 	cur := handler.collection.FindOne(handler.ctx, bson.M{
 		"username": user.Username,
-		"password": string(h.Sum([]byte(user.Password))),
+		"password": hex.EncodeToString(h.Sum([]byte(user.Password))),
 	})
 	if cur.Err() != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
-
 	//creating token
 	expirationTime := time.Now().Add(10 * time.Minute)
 	claims := &Claims{
@@ -74,6 +72,24 @@ func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 		Expires: expirationTime,
 	}
 	c.JSON(http.StatusOK, jwtOutput)
+}
+
+func (handler *AuthHandler) SignUpHandler(c *gin.Context) {
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	h := sha256.New()
+	_, err := handler.collection.InsertOne(handler.ctx, bson.M{
+		"username": user.Username,
+		"password": hex.EncodeToString(h.Sum([]byte(user.Password))),
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while trying to create new user"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": "user created and inserted into database"})
 }
 
 func (handler *AuthHandler) RefreshHandler(c *gin.Context) {
