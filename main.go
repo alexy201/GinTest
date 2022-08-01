@@ -3,10 +3,15 @@
 // This is a sample recipes API. You can find out more about the API at https://github.com/PacktPublishing/Building-Distributed-Applications-in-Gin.
 //
 //	Schemes: http
-//  Host: localhost:8080
+//  Host: https://api.recipes.io
 //	BasePath: /
 //	Version: 1.0.0
 //	Contact: Mohamed Labouardy <mohamed@labouardy.com> https://labouardy.com
+//  SecurityDefinitions:
+//  api-key:
+//    type: apiKey
+//    name: Authorization
+//    in: header
 //
 //	Consumes:
 //	- application/json
@@ -81,6 +86,6 @@ func main() {
 	router.POST("/refresh", authHandler.RefreshHandler)
 	router.POST("/signin", authHandler.SignInHandler)
 	router.POST("/signup", authHandler.SignUpHandler)
-	router.POST("/signout", authHandler.SignOutHandler)
-	router.Run()
+	router.GET("/signout", authHandler.SignOutHandler)
+	router.RunTLS(":443", "certs/localhost.crt", "certs/localhost.key")
 }

@@ -38,6 +38,16 @@ func NewAuthHandler(ctx context.Context, collection *mongo.Collection) *AuthHand
 	}
 }
 
+// swagger:operation POST /signin auth signIn
+// Login with username and password
+// ---
+// produces:
+// - application/json
+// responses:
+// '200':
+//         description: Successful operation
+// '401':
+//         description: Invalid credentials
 func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -63,6 +73,16 @@ func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User signed in"})
 }
 
+// swagger:operation POST /signup auth signUp
+// Create new user with username and password
+// ---
+// produces:
+// - application/json
+// responses:
+// '200':
+//         description: Successful operation
+// '401':
+//         description: Error with insertion operation
 func (handler *AuthHandler) SignUpHandler(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -81,6 +101,16 @@ func (handler *AuthHandler) SignUpHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": "user created and inserted into database"})
 }
 
+// swagger:operation GET /signout auth signOut
+// Sign out current user
+// ---
+// produces:
+// - application/json
+// responses:
+// '200':
+//         description: Successful operation
+// '401':
+//         description: Error with signout operation
 func (handler *AuthHandler) SignOutHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Clear()
@@ -88,6 +118,18 @@ func (handler *AuthHandler) SignOutHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Signed out..."})
 }
 
+// swagger:operation POST /refresh auth refresh
+// Get new token in exchange for an old one
+// ---
+// produces:
+// - application/json
+// responses:
+// '200':
+//         description: Successful operation
+// '400':
+//         description: Token is new and doesn't need a refresh
+// '401':
+//         description: Invalid credentials
 func (handler *AuthHandler) RefreshHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	sessionToken := session.Get("token")

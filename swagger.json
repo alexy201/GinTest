@@ -19,7 +19,7 @@
     },
     "version": "1.0.0"
   },
-  "host": "localhost:8080",
+  "host": "https://api.recipes.io",
   "basePath": "/",
   "paths": {
     "/recipes": {
@@ -210,6 +210,79 @@
           }
         }
       }
+    },
+    "/refresh": {
+      "post": {
+        "description": "Get new token in exchange for an old one",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "operationId": "refresh"
+      }
+    },
+    "/signin": {
+      "post": {
+        "description": "Login with username and password",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "operationId": "signIn",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Password",
+            "description": "User's password",
+            "name": "password",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "description": "User's login",
+            "name": "username",
+            "in": "query",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/signout": {
+      "get": {
+        "description": "Sign out current user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "operationId": "signOut"
+      }
+    },
+    "/signup": {
+      "post": {
+        "description": "Create new user with username and password",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "operationId": "signUp"
+      }
+    }
+  },
+  "securityDefinitions": {
+    "api-key": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }
