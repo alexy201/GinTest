@@ -2,22 +2,23 @@
 //
 // This is a sample recipes API. You can find out more about the API at https://github.com/PacktPublishing/Building-Distributed-Applications-in-Gin.
 //
-//	Schemes: http
-//  Host: https://api.recipes.io
-//	BasePath: /
-//	Version: 1.0.0
-//	Contact: Mohamed Labouardy <mohamed@labouardy.com> https://labouardy.com
-//  SecurityDefinitions:
-//  api-key:
-//    type: apiKey
-//    name: Authorization
-//    in: header
+//		Schemes: http
+//	 Host: https://api.recipes.io
+//		BasePath: /
+//		Version: 1.0.0
+//		Contact: Mohamed Labouardy <mohamed@labouardy.com> https://labouardy.com
+//	 SecurityDefinitions:
+//	 api-key:
+//	   type: apiKey
+//	   name: Authorization
+//	   in: header
 //
-//	Consumes:
-//	- application/json
+//		Consumes:
+//		- application/json
 //
-//	Produces:
-//	- application/json
+//		Produces:
+//		- application/json
+//
 // swagger:meta
 package main
 
