@@ -12,7 +12,7 @@ class Navbar extends React.Component {
         }
 
         this.checkAuthStatus();
-        console.log(this.isAuthenticated);
+        console.log(this.signedIn);
     }
 
     checkAuthStatus() {
@@ -23,6 +23,29 @@ class Navbar extends React.Component {
     getCookie(name) {
         var match = document.cookie.match(RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
         return match ? match[1] : null;
+    }
+
+    sendPOST() {
+        console.log("sending");
+        fetch('http://localhost:8080/signin', {
+            method: 'POST',
+            body: JSON.stringify({
+                "username": "alsima",
+                "password": "6892jE8H"
+            }),
+            headers: {
+                'Origin':"http://localhost:3000",
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+          })
+        .then((response) => response.json())
+        .then((data) => {
+        console.log(data);
+        // Handle data
+        })
+        .catch((err) => {
+        console.log(err.message);
+        });
     }
 
     render() {
@@ -41,8 +64,8 @@ class Navbar extends React.Component {
                 <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo02">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
-                            {this.isAuthenticated ? (<Profile />) : (
-                                <a class="nav-link active" /*onClick={() => loginWithRedirect()}*/>
+                            {this.signedIn ? (<Profile />) : (
+                                <a class="nav-link active" onClick={() => this.sendPOST()}>
                                     Login</a>
                             )}
                         </li>
